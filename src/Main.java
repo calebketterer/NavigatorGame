@@ -62,16 +62,23 @@ public class Main {
 
         for (int j = ybound; j >= 1; j--) {
             if(j<10) {System.out.print(" " + j);} else {System.out.print(j);} // Row Numbers
+
+            int t = 0;
             for (int i = 1; i <= xbound; i++) {
+
                 if (i==currentx&&j==currenty) {
                     System.out.print(" ●");//◯●
                 }
                 else if (i==otreasurex&&j==otreasurey){
                     System.out.print(" T");//◯●
                 }
-                else if (i==treasurex[tn -1]&&j==treasurey[tn -1]){
-                    System.out.print(" X");//◯●
+                else if(i==treasurex[t]&&j==treasurey[t]){
+                    System.out.print(" 0");//◯●
+                    t++;
                 }
+                /*else if (i==treasurex[tn -1]&&j==treasurey[tn -1]){
+                    System.out.print(" X");//◯●
+                }*/
                 else {
                     if (startingy<ybound/2){dir=1;}
                     if (startingx>xbound/2){dir=2;}
@@ -138,7 +145,6 @@ public class Main {
         for (int t = 0; t<= tn -1; t++){
             System.out.println("Treasure "+(t+1)+ " coord: ("+treasurex[t]+", "+treasurey[t]+").");
         }
-
     }
     static void displayPlayerStats(){
         System.out.println("You are " + lifetime + " turns old" + ".\n");
@@ -186,6 +192,6 @@ public class Main {
         genTreasure();
         initialMapStats();
         genMap();
-        runLifetime();
+        //runLifetime();
     }
 }
