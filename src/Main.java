@@ -3,16 +3,15 @@ import java.util.Scanner;
 
 public class Main {
     public static int xbound, startingx, ybound, startingy, currentx, currenty, dir;
-    public static int otreasurex, otreasurey, tn;
-    public static int[] treasurex,treasurey;
-    public static int score, lifetime = 0;
+    public static int treasurex, treasurey;
+    public static int score = 0, scoreInc = 1, Lifetime = 0, LifetimeInc = 5, LifetimeLimit = 5;
     public static String in;
 
     static void newConstantLocation(){
-        xbound = 20;
-        startingx = 10;
-        ybound = 20;
-        startingy = 10;
+        xbound = 10;
+        startingx = 5;
+        ybound = 10;
+        startingy = 5;
         currentx = startingx;
         currenty = startingy;
     } //Constant 20 by 20 start in the middle.
@@ -54,33 +53,42 @@ public class Main {
         currenty = startingy;
 
         System.out.print("\n");
-    }//For manual inputs
+    } //For manual inputs
+
+    static void checkLifetime(){
+        if (Lifetime>=25){
+            score = score + 10;
+            scoreInc++;
+            Lifetime = 0;
+            LifetimeLimit = 5;
+            System.out.println("""
+                    =====================================
+                    You have been reincarnated!
+                    Your lifetime has been reset to zero
+                    You gained 10 points
+                    The reward for finding treasure
+                    is permanently increased by 1.
+                    =====================================""");
+        }
+    }
 
     static void genMap(){
         Random rand = new Random();
-        if (lifetime==0){dir = rand.nextInt(1,5);}// Land is NWES
+        if (Lifetime==0){dir = rand.nextInt(1,5);}// Land is NWES
 
         for (int j = ybound; j >= 1; j--) {
             if(j<10) {System.out.print(" " + j);} else {System.out.print(j);} // Row Numbers
 
-            int t = 0;
             for (int i = 1; i <= xbound; i++) {
 
                 if (i==currentx&&j==currenty) {
                     System.out.print(" ●");//◯●
                 }
-                else if (i==otreasurex&&j==otreasurey){
+                else if (i== treasurex &&j== treasurey){
                     System.out.print(" T");//◯●
                 }
-                else if(i==treasurex[t]&&j==treasurey[t]){
-                    System.out.print(" 0");//◯●
-                    t++;
-                }
-                /*else if (i==treasurex[tn -1]&&j==treasurey[tn -1]){
-                    System.out.print(" X");//◯●
-                }*/
-                else {
-                    if (startingy<ybound/2){dir=1;}
+                else {System.out.print(" ■");
+                    /*if (startingy<ybound/2){dir=1;}
                     if (startingx>xbound/2){dir=2;}
                     if (startingx<xbound/2){dir=3;}
                     if (startingy>ybound/2){dir=4;}
@@ -103,7 +111,7 @@ public class Main {
 
                         } // Land is South
                         default -> System.out.print(" X");//⬜■
-                    }//Random land direction
+                    }*///Random wave/land direction
 
                 }
             } // Acii Map Gen
@@ -119,36 +127,30 @@ public class Main {
     }
     public static void genTreasure(){
         Random rand = new Random();
-        tn = rand.nextInt(3,10);
-        treasurex = new int[tn];
-        treasurey = new int[tn];
-        for (int i = 0; i <= tn -1; i++){
-            treasurex[i]=rand.nextInt(1,xbound);
-            treasurey[i]=rand.nextInt(1,ybound);
-        }
-
-        otreasurex = rand.nextInt(1,xbound);
-        otreasurey = rand.nextInt(1,ybound);
+        treasurex = rand.nextInt(1,xbound);
+        treasurey = rand.nextInt(1,ybound);
     }
     public static void checkTreasure(){
-        if (currentx==otreasurex&&currenty==otreasurey){
-            System.out.print("Congrats, you found the treasure!");
-            System.exit(0);
+        if (currentx== treasurex &&currenty== treasurey){
+            System.out.print("""
+                    Congrats, you found the treasure!
+                    Your score and lifetime limit have been increased.
+                    """);
+            score=score+scoreInc;
+            LifetimeLimit=LifetimeLimit+LifetimeInc;
+            genTreasure();
         }
     }
 
     static void initialMapStats(){
         System.out.println("Grid size: "+xbound+" by "+ ybound+". ");
         System.out.println("Starting Location: (" + startingx+", "+startingy+").");
-        if (otreasurex == 0||otreasurey == 0){System.out.println("There is no treasure.");}
-        else {System.out.println("Original Treasure Location: ("+otreasurex+", "+otreasurey+").");}
-        for (int t = 0; t<= tn -1; t++){
-            System.out.println("Treasure "+(t+1)+ " coord: ("+treasurex[t]+", "+treasurey[t]+").");
-        }
+        if (treasurex == 0|| treasurey == 0){System.out.println("There is no treasure.");}
+        else {System.out.println("Original Treasure Location: ("+ treasurex +", "+ treasurey +").");}
     }
     static void displayPlayerStats(){
-        System.out.println("You are " + lifetime + " turns old" + ".\n");
-
+        System.out.println("You are " + Lifetime + " turns old and are expected to live until turn " + LifetimeLimit + ".");
+        System.out.println("Your score is "+score+".");
         System.out.println("You are located at ("+ currentx + ", " + currenty +").\n");
     }
     static void getMovementInput(){
@@ -158,19 +160,19 @@ public class Main {
         switch (in) {
             case "w" -> {
                 currenty++;
-                lifetime++;
+                Lifetime++;
             }
             case "a" -> {
                 currentx--;
-                lifetime++;
+                Lifetime++;
             }
             case "s" -> {
                 currenty--;
-                lifetime++;
+                Lifetime++;
             }
             case "d" -> {
                 currentx++;
-                lifetime++;
+                Lifetime++;
             }
             case "stop" -> System.exit(0);
             default -> System.out.println("invalid input.\n");
@@ -180,18 +182,20 @@ public class Main {
     static void runLifetime(){
         do{
             getMovementInput();
+            checkTreasure();
+            checkLifetime();
             genMap();
             displayPlayerStats();
-            checkTreasure();
-        }while(lifetime<10);
-        System.out.println("You failed to reach the treasure.");
+        }while(Lifetime<LifetimeLimit);
+        if (score == 0)System.out.println("You didn't reach the first treasure.");
+        else System.out.println("You did not reach the next treasure.\nTreasures found: "+score);
     }
 
     public static void main(String[] args) {
-        newRandomLocation();
+        newConstantLocation();
         genTreasure();
         initialMapStats();
         genMap();
-        //runLifetime();
+        runLifetime();
     }
 }
